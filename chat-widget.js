@@ -1,43 +1,112 @@
-(function () {
-    if (!window.ChatWidgetConfig) {
-        console.error("ChatWidgetConfig is missing.");
-        return;
+document.addEventListener("DOMContentLoaded", function () {
+    // Create chat widget container
+    const chatWidget = document.createElement("div");
+    chatWidget.id = "chat-widget";
+    chatWidget.innerHTML = `
+        <div id="chat-header">Chatbot</div>
+        <div id="chat-body"></div>
+        <div id="chat-input-container">
+            <input type="text" id="chat-input" placeholder="Type a message..."/>
+            <button id="chat-send">Send</button>
+        </div>
+    `;
+    document.body.appendChild(chatWidget);
+
+    // Add functionality for sending messages
+    const chatBody = document.getElementById("chat-body");
+    const chatInput = document.getElementById("chat-input");
+    const chatSend = document.getElementById("chat-send");
+
+    chatSend.addEventListener("click", sendMessage);
+    chatInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") sendMessage();
+    });
+
+    function sendMessage() {
+        const message = chatInput.value.trim();
+        if (message !== "") {
+            appendMessage("user", message);
+            chatInput.value = "";
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            // 🔹 Later, replace this with webhook call
+            setTimeout(() => {
+                appendMessage("bot", "I'm still learning! How can I help?");
+            }, 500);
+        }
     }
 
-    const chatButton = document.createElement("div");
-    chatButton.id = "chat-widget";
-    chatButton.style.position = "fixed";
-    chatButton.style.bottom = "20px";
-    chatButton.style.right = "20px";
-    chatButton.style.width = "60px";
-    chatButton.style.height = "60px";
-    chatButton.style.backgroundColor = window.ChatWidgetConfig.style.primaryColor || "#854fff";
-    chatButton.style.borderRadius = "50%";
-    chatButton.style.boxShadow = "0px 4px 6px rgba(0,0,0,0.2)";
-    chatButton.style.display = "flex";
-    chatButton.style.alignItems = "center";
-    chatButton.style.justifyContent = "center";
-    chatButton.style.cursor = "pointer";
-    chatButton.style.zIndex = "9999";
-    chatButton.innerHTML = "💬";
+    function appendMessage(role, text) {
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("chat-message", role);
+        messageElement.innerText = text;
+        chatBody.appendChild(messageElement);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+});
 
-    document.body.appendChild(chatButton);
-
-    const chatBox = document.createElement("iframe");
-    chatBox.src = window.ChatWidgetConfig.webhook.url;
-    chatBox.style.position = "fixed";
-    chatBox.style.bottom = "90px";
-    chatBox.style.right = "20px";
-    chatBox.style.width = "350px";
-    chatBox.style.height = "500px";
-    chatBox.style.border = "none";
-    chatBox.style.borderRadius = "10px";
-    chatBox.style.boxShadow = "0px 4px 6px rgba(0,0,0,0.2)";
-    chatBox.style.display = "none";
-    chatBox.style.zIndex = "9999";
-    document.body.appendChild(chatBox);
-
-    chatButton.addEventListener("click", function () {
-        chatBox.style.display = chatBox.style.display === "none" ? "block" : "none";
-    });
-})();
+// 🔹 Add Styles Dynamically
+const style = document.createElement("style");
+style.innerHTML = `
+    #chat-widget {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 300px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        font-family: Arial, sans-serif;
+    }
+    #chat-header {
+        background: #854fff;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+    #chat-body {
+        height: 250px;
+        overflow-y: auto;
+        padding: 10px;
+    }
+    #chat-input-container {
+        display: flex;
+        border-top: 1px solid #ddd;
+        padding: 10px;
+    }
+    #chat-input {
+        flex: 1;
+        padding: 5px;
+        border: none;
+        outline: none;
+    }
+    #chat-send {
+        background: #854fff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+    .chat-message {
+        padding: 8px;
+        margin: 5px 0;
+        border-radius: 5px;
+        max-width: 80%;
+        word-wrap: break-word;
+    }
+    .user {
+        background: #854fff;
+        color: white;
+        align-self: flex-end;
+    }
+    .bot {
+        background: #f1f1f1;
+        color: black;
+        align-self: flex-start;
+    }
+`;
+document.head.appendChild(style);
